@@ -9,8 +9,12 @@ services:
         - "5000:5000"
       volumes:
         - data_files:/usr/src/project/static/files
+        # - code:/C/Users/Loy/Desktop/ravenpoint
+        # - .:/usr/src
+
       command: /bin/bash -c "source activate ravenpoint && python3 app.py"
 
 volumes:
   data_files:
+#   code:
    
