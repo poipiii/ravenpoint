@@ -25,7 +25,7 @@ app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'static', 'files')
 
 print(basedir)
 # CORS
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 db = SQLAlchemy(app)
 Migrate(app, db)
