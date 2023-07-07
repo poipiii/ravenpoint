@@ -266,7 +266,6 @@ class ListItems(Resource):
     # Extract table metadata
     curr_table = all_tables.loc[all_tables.id.eq(list_id)].to_dict('records')[0]
     curr_db_table = curr_table['table_db_name']
-
     # Extract table
     with sqlite3.connect(conn_string) as conn:
         df = pd.read_sql(f"SELECT * FROM {curr_db_table}", conn)
@@ -904,3 +903,63 @@ class currentUser(Resource):
         except Exception as e:
           conn.rollback()
           raise BadRequest(f'Error retrieving user {e}')
+        
+
+@api_namespace.route("/web/SiteUsers",doc={"description":'''Endpoint for retrieving all users in a sharepoint site'''})
+class currentUser(Resource):
+  @api_namespace.doc(security='X-RequestDigest')
+  def get(self):
+      # Check for invalid keywords
+    list_name = "rpusers"
+    request_keys = request.args.keys()
+    if any([key not in ['$select', '$filter', '$expand', '$top'] for key in request_keys]):
+      raise BadRequest('Invalid keyword(s). Use only $select, $filter, or $expand.')
+    
+    params = parse_odata_query(request.args)
+    if params:
+      params['listTitle'] = "rpusers"
+
+    # with sqlite3.connect(conn_string) as conn:
+    #   all_tables = get_all_table_names(conn)
+    #   all_rships = get_all_relationships(conn)
+    # print(curr_table['table_db_name'])
+    # if list_name not in all_tables.table_name.tolist():
+    #   raise BadRequest('List does not exist.')
+    # # Extract table metadata
+    # curr_table = all_tables.loc[all_tables.table_name.eq(list_name)].to_dict('records')[0]
+    # curr_db_table = curr_table['table_db_name']
+    with sqlite3.connect(conn_string) as conn:
+      try:
+        df = pd.read_sql_query("SELECT * FROM rpusers",conn)
+        data = df.to_dict('records')
+      except Exception as e:
+          conn.rollback()
+          raise BadRequest(f'Error retrieving user infomation {e}')
+    
+    if '$select' not in request_keys and '$filter' not in request_keys and '$expand' not in request_keys:
+          return {
+        'listTitle': list_name,
+        'value': data
+      }
+    joins = {}
+     # Process filter
+    params['filter_query'] = parse_odata_filter(params['filter_query'], joins, list_name)
+    sql_query = []
+    sql_query.append(f"SELECT * ")
+    sql_query.append(f"FROM {list_name}")
+    if params['filter_query']:
+      sql_query.append(f"WHERE {params['filter_query']}")
+    print(" ".join(sql_query))
+    with sqlite3.connect(conn_string) as conn:
+     try:
+        df = pd.read_sql_query(" ".join(sql_query),conn)
+        data = df.to_dict('records')
+        return {
+        'listTitle': list_name,
+        'value': data
+      }
+     except Exception as e:
+          conn.rollback()
+          raise BadRequest(f'Error retrieving user infomation {e}')
+
+
