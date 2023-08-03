@@ -21,6 +21,8 @@ flask-smorest
 flask-smorest-sqlalchemy-odata
 Flask-SQLAlchemy 
 Flask-WTF 
+Flask-Mail
+flask-mail
 greenlet 
 idna 
 importlib-metadata 

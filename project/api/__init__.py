@@ -6,6 +6,9 @@ import sqlite3
 import time
 
 from flask import Blueprint, request, jsonify, send_from_directory,Response 
+from flask_mail import Mail
+from flask_mail import Message
+
 from flask_restx import Namespace, Resource, fields
 from project import db, app
 from project.utils import get_all_table_names, get_all_relationships, parse_odata_filter, \
@@ -19,8 +22,16 @@ api = Blueprint(
   template_folder='api_templates'
 )
 
+app.config['MAIL_SERVER']='localhost'
+app.config['MAIL_PORT'] = 1025
+
+mail = Mail(app)
+
 # Connection string
 conn_string = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+
+
+
 
 # Create namespace
 api_namespace = Namespace('_api', 'RavenPoint REST API endpoints')
@@ -962,4 +973,27 @@ class currentUser(Resource):
           conn.rollback()
           raise BadRequest(f'Error retrieving user infomation {e}')
 
+
+
+
+
+@api_namespace.route("/SP.Utilities.Utility.SendEmail",doc={"description":'''Endpoint for simulating sending emails from ravenpoint'''})
+class currentUser(Resource):
+  @api_namespace.doc(security='X-RequestDigest')
+  def post(self):
+     headers = request.headers
+     data = request.json
+     Email_From  = "test@ravenpoint.com"
+     Email_To = data["properties"]["To"]["results"]
+     Email_Body = data["properties"]["Body"]
+     Email_Subject = data["properties"]["Subject"]
+     msg = Message(
+                  sender=Email_From,
+                  recipients=Email_To)
+     msg.body = Email_Body
+     msg.subject = Email_Subject
+     mail.send(msg)
+     return "email sent"
+     
+     
 

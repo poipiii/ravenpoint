@@ -33,6 +33,7 @@ dependencies:
   - flask-restx=0.5.1
   - flask-sqlalchemy=2.5.1
   - flask-wtf=0.15.1
+  - flask-mail
   # - greenlet=1.1.1=py39h295c915_0
   # - idna=3.3=pyhd3eb1b0_0
   # - importlib-metadata=4.11.3=py39h06a4308_0
