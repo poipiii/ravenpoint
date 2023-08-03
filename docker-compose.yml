@@ -11,7 +11,11 @@ services:
         - files:/usr/src/project/data/documents
         - data_files:/usr/src/project/static/files
       command: /bin/bash -c "source activate ravenpoint && python3 app.py"
-
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
 volumes:
 #   code:
   files:
